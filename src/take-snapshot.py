@@ -22,15 +22,15 @@ yesterday = date.today() - timedelta(1)
 
 snapshot = 'logstash-' + yesterday.strftime("%Y.%m.%d")
 
-url = host + '_snapshot/' + bucket + '/' + snapshot
-
 print('Take snapshot : ' + bucket + '/' + snapshot)
+
+if token != '':
+    slack = Slacker(token)
+    slack.chat.post_message('#sandbox', 'Take snapshot : ' + bucket + '/' + snapshot)
+
+url = host + '_snapshot/' + bucket + '/' + snapshot
 
 # r = requests.put(url, auth=awsauth)
 r = requests.put(url)
 
 print(r.text)
-
-if token != '':
-    slack = Slacker(token)
-    slack.chat.post_message('#sandbox', 'Take snapshot : ' + bucket + '/' + snapshot)
