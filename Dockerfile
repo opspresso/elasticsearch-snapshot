@@ -1,6 +1,6 @@
 # Dockerfile
 
-FROM 3.7-alpine
+FROM python:3.7-alpine
 
 RUN apk add --no-cache bash curl
 
