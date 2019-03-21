@@ -34,3 +34,7 @@ url = host + '_snapshot/' + bucket + '/' + snapshot
 r = requests.put(url)
 
 print(r.text)
+
+if token != '':
+    slack = Slacker(token)
+    slack.chat.post_message('#sandbox', 'Take snapshot : ' + bucket + ' : ' + r.text)
