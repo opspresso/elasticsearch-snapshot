@@ -3,32 +3,34 @@ import boto3
 import requests
 from datetime import date, timedelta
 from requests_aws4auth import AWS4Auth
+from slacker import Slacker
 
-# userid = os.environ.get('AWS_USERID')  # 759871273906
-bucket = os.environ.get('AWS_BUCKET')  # seoul-sre-k8s-elasticsearch-snapshot
+bucket = os.environ.get('AWS_BUCKET')
 region = os.environ.get('AWS_REGION', 'ap-northeast-2')
 
-service = 'es'
-host = os.environ.get('ES_HOST')  # http://sre-k8s-elasticsearch.opsnow.io/
-# snapshot = os.environ.get('ES_SNAPSHOT')  # logstash-2019.01.14
-# indices = os.environ.get('ES_INDEX')  # logstash-2019.01.14
+host = os.environ.get('ES_HOST')
 
-credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
-                   region, service, session_token=credentials.token)
+token = os.environ.get('SLACK_TOKEN')
+
+# credentials = boto3.Session().get_credentials()
+# awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
+#                    region, 'es', session_token=credentials.token)
 
 # Take snapshot
 
 yesterday = date.today() - timedelta(1)
-date_time = yesterday.strftime("%Y.%m.%d")
 
-snapshot = 'logstash-' + date_time
+snapshot = 'logstash-' + yesterday.strftime("%Y.%m.%d")
 
-path = '_snapshot/' + bucket + '/' + snapshot
-url = host + path
+url = host + '_snapshot/' + bucket + '/' + snapshot
 
-print('Take snapshot : ' + snapshot)
+print('Take snapshot : ' + bucket + '/' + snapshot)
 
-r = requests.put(url, auth=awsauth)
+# r = requests.put(url, auth=awsauth)
+r = requests.put(url)
 
 print(r.text)
+
+if token != '':
+    slack = Slacker(token)
+    slack.chat.post_message('#sandbox', 'Take snapshot : ' + bucket + '/' + snapshot)
