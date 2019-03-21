@@ -22,19 +22,28 @@ yesterday = date.today() - timedelta(1)
 
 snapshot = 'logstash-' + yesterday.strftime("%Y.%m.%d")
 
-print('Take snapshot : ' + bucket + '/' + snapshot)
 
-if token != '':
-    slack = Slacker(token)
-    slack.chat.post_message('#sandbox', 'Take snapshot : ' + bucket + '/' + snapshot)
+def post_slack(channal, text):
+    print(text)
 
-url = host + '_snapshot/' + bucket + '/' + snapshot
+    if token != '':
+        slack = Slacker(token)
+        slack.chat.post_message(channal, text)
 
-# r = requests.put(url, auth=awsauth)
-r = requests.put(url)
+def take_snapshot():
+    post_slack('#sandbox', 'Take snapshot : %s/%s' % (bucket, snapshot))
 
-print(r.text)
+    try:
+        url = host + '_snapshot/' + bucket + '/' + snapshot
 
-if token != '':
-    slack = Slacker(token)
-    slack.chat.post_message('#sandbox', 'Take snapshot : ' + bucket + ' : ' + r.text)
+        # r = requests.put(url, auth=awsauth)
+        r = requests.put(url)
+
+        post_slack('#sandbox', 'Take snapshot : %s/%s : %s' % (bucket, snapshot, r.text))
+
+    except KeyError as ex:
+        post_slack('#sandbox', 'Environment variable %s not set.' % str(ex))
+
+
+if __name__ == '__main__':
+    take_snapshot()
