@@ -19,9 +19,7 @@ token = os.environ.get('SLACK_TOKEN')
 
 # Take snapshot
 
-yesterday = date.today() - timedelta(1)
-
-snapshot = 'snapshot-' + yesterday.strftime("%Y.%m.%d")
+snapshot = 'snapshot-' + (date.today()).strftime("%Y.%m.%d")
 
 
 def post_slack(channal, text):
