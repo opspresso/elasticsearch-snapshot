@@ -21,7 +21,7 @@ token = os.environ.get('SLACK_TOKEN')
 
 yesterday = date.today() - timedelta(1)
 
-snapshot = 'logstash-' + yesterday.strftime("%Y.%m.%d")
+snapshot = 'snapshot-' + yesterday.strftime("%Y.%m.%d")
 
 
 def post_slack(channal, text):
