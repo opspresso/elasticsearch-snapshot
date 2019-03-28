@@ -1,6 +1,7 @@
 import os
 import boto3
 import requests
+
 from datetime import date, timedelta
 from requests_aws4auth import AWS4Auth
 from slacker import Slacker
@@ -18,9 +19,7 @@ token = os.environ.get('SLACK_TOKEN')
 
 # Take snapshot
 
-yesterday = date.today() - timedelta(1)
-
-snapshot = 'logstash-' + yesterday.strftime("%Y.%m.%d")
+snapshot = 'snapshot-' + (date.today()).strftime("%Y.%m.%d")
 
 
 def post_slack(channal, text):
@@ -29,6 +28,7 @@ def post_slack(channal, text):
     if token != '':
         slack = Slacker(token)
         slack.chat.post_message(channal, text)
+
 
 def take_snapshot():
     post_slack('#sandbox', 'Take snapshot : %s/%s' % (bucket, snapshot))
@@ -39,7 +39,8 @@ def take_snapshot():
         # r = requests.put(url, auth=awsauth)
         r = requests.put(url)
 
-        post_slack('#sandbox', 'Take snapshot : %s/%s : %s' % (bucket, snapshot, r.text))
+        post_slack('#sandbox', 'Take snapshot : %s/%s : %s' %
+                   (bucket, snapshot, r.text))
 
     except KeyError as ex:
         post_slack('#sandbox', 'Environment variable %s not set.' % str(ex))
