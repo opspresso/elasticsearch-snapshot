@@ -11,4 +11,4 @@ RUN pip install slacker
 
 COPY src /
 
-ENTRYPOINT ["python", "/take-snapshot.py"]
+ENTRYPOINT ["python", "/run.py"]
