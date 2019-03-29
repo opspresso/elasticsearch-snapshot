@@ -10,7 +10,13 @@ region = os.environ.get('AWS_REGION', 'ap-northeast-2')
 
 bucket = os.environ.get('AWS_BUCKET')
 
-host = os.environ.get('ES_HOST')
+es_host = os.environ.get('ES_HOST')
+
+index_prefix = os.environ.get('INDEX_PREFIX', 'logstash')
+index_interval = os.environ.get('INDEX_INTERVAL', 40)
+
+snapshot_prefix = os.environ.get('SNAPSHOT_PREFIX', 'logstash')
+snapshot_interval = os.environ.get('SNAPSHOT_INTERVAL', 330)
 
 token = os.environ.get('SLACK_TOKEN')
 channal = os.environ.get('SLACK_CHANNAL', '#sandbox')
@@ -33,55 +39,61 @@ def post_slack(text):
 
 
 def remove_index():
-    index = 'logstash-' + (date.today() - timedelta(40)).strftime("%Y.%m.%d")
+    index = index_prefix + '-' + (date.today() - timedelta(index_interval)).strftime("%Y.%m.%d")
 
-    print('Remove index : %s' % index)
+    print('Remove %s : %s' % (index_prefix, index))
 
     try:
-        url = host + index
+        url = es_host + index
 
         r = requests.delete(url)
 
-        post_slack('Remove index : %s : %s' % (index, r.text))
+        post_slack('Remove %s : %s : %s' % (index_prefix, index, r.text))
 
     except KeyError as ex:
         post_slack('Environment variable %s not set.' % str(ex))
 
 
 def remove_snapshot():
-    snapshot = 'snapshot-' + (date.today() - timedelta(330)).strftime("%Y.%m.%d")
+    snapshot = snapshot_prefix + '-' + (date.today() - timedelta(snapshot_interval)).strftime("%Y.%m.%d")
 
-    print('Remove snapshot : %s/%s' % (bucket, snapshot))
+    print('Remove %s : %s/%s' % (snapshot_prefix, bucket, snapshot))
 
     try:
-        url = host + '_snapshot/' + bucket + '/' + snapshot
+        url = es_host + '_snapshot/' + bucket + '/' + snapshot
 
         r = requests.delete(url)
 
-        post_slack('Remove snapshot : %s/%s : %s' % (bucket, snapshot, r.text))
+        post_slack('Remove %s : %s/%s : %s' % (snapshot_prefix, bucket, snapshot, r.text))
 
     except KeyError as ex:
         post_slack('Environment variable %s not set.' % str(ex))
 
 
 def take_snapshot():
-    snapshot = 'snapshot-' + (date.today()).strftime("%Y.%m.%d")
+    snapshot = snapshot_prefix + '-' + (date.today()).strftime("%Y.%m.%d")
 
-    print('Take snapshot : %s/%s' % (bucket, snapshot))
+    print('Take %s : %s/%s' % (snapshot_prefix, bucket, snapshot))
 
     try:
-        url = host + '_snapshot/' + bucket + '/' + snapshot
+        url = es_host + '_snapshot/' + bucket + '/' + snapshot
 
         # r = requests.put(url, auth=awsauth)
         r = requests.put(url)
 
-        post_slack('Take snapshot : %s/%s : %s' % (bucket, snapshot, r.text))
+        post_slack('Take %s : %s/%s : %s' % (snapshot_prefix, bucket, snapshot, r.text))
 
     except KeyError as ex:
         post_slack('Environment variable %s not set.' % str(ex))
 
 
 if __name__ == '__main__':
+    if bucket is None or bucket == '':
+        raise ValueError('AWS_BUCKET')
+
+    if es_host is None or es_host == '':
+        raise ValueError('ES_HOST')
+
     # remove_index()
 
     # remove_snapshot()
