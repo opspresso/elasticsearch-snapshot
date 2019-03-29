@@ -1,11 +1,15 @@
 #!/bin/bash
 
+OS_NAME="$(uname | awk '{print tolower($0)}')"
+
 SHELL_DIR=$(dirname $0)
 
 CMD=${1:-${CIRCLE_JOB}}
 
 USERNAME=${CIRCLE_PROJECT_USERNAME:-opsnow-tools}
 REPONAME=${CIRCLE_PROJECT_REPONAME:-elasticsearch-snapshot}
+
+BRANCH=${CIRCLE_BRANCH:-master}
 
 BUCKET="repo.opsnow.io"
 
@@ -47,7 +51,18 @@ _error() {
     exit 1
 }
 
+_replace() {
+    if [ "${OS_NAME}" == "darwin" ]; then
+        sed -i "" -e "$1" $2
+    else
+        sed -i -e "$1" $2
+    fi
+}
+
 _prepare() {
+    # target
+    mkdir -p ${SHELL_DIR}/target/dist
+
     # 755
     find ./** | grep [.]sh | xargs chmod 755
 }
@@ -83,12 +98,12 @@ _gen_version() {
         VERSION=$(cat ${SHELL_DIR}/VERSION | xargs)
     fi
 
-    _result "CIRCLE_BRANCH=${CIRCLE_BRANCH}"
+    _result "BRANCH=${BRANCH}"
     _result "PR_NUM=${PR_NUM}"
     _result "PR_URL=${PR_URL}"
 
     # version
-    if [ "${CIRCLE_BRANCH}" == "master" ]; then
+    if [ "${BRANCH}" == "master" ]; then
         VERSION=$(echo ${VERSION} | perl -pe 's/^(([v\d]+\.)*)(\d+)(.*)$/$1.($3+1).$4/e')
         printf "${VERSION}" > ${SHELL_DIR}/target/VERSION
     else
@@ -128,6 +143,17 @@ _package() {
     _gen_version
 
     _result "VERSION=${VERSION}"
+
+    # replace
+    _replace "s/name: .*/name: ${REPONAME}/g" ${SHELL_DIR}/charts/${REPONAME}/Chart.yaml
+    _replace "s/appVersion: .*/appVersion: ${VERSION}/g" ${SHELL_DIR}/charts/${REPONAME}/Chart.yaml
+    _replace "s/version: .*/version: ${VERSION}/g" ${SHELL_DIR}/charts/${REPONAME}/Chart.yaml
+    _replace "s/tag: .*/tag: ${VERSION}/g" ${SHELL_DIR}/charts/${REPONAME}/values.yaml
+
+    # tar
+    pushd ${SHELL_DIR}/charts/${REPONAME}
+    tar -zcvf ../../target/dist/${REPONAME}-${VERSION}.tar.gz templates Chart.yaml values.yaml
+    popd
 }
 
 _release() {
