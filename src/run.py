@@ -16,7 +16,7 @@ index_prefix = os.environ.get('INDEX_PREFIX', 'logstash')
 index_interval = os.environ.get('INDEX_INTERVAL', 40)
 
 snapshot_prefix = os.environ.get('SNAPSHOT_PREFIX', 'snapshot')
-snapshot_interval = os.environ.get('SNAPSHOT_INTERVAL', 330)
+snapshot_interval = os.environ.get('SNAPSHOT_INTERVAL', 365)
 
 token = os.environ.get('SLACK_TOKEN')
 channal = os.environ.get('SLACK_CHANNAL', '#sandbox')

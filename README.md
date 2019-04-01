@@ -16,7 +16,7 @@ export INDEX_PREFIX=logstash
 export INDEX_INTERVAL=40
 
 export SNAPSHOT_PREFIX=snapshot
-export SNAPSHOT_INTERVAL=330
+export SNAPSHOT_INTERVAL=365
 
 export SLACK_TOKEN=xoxb-0000-0000-xxxx
 export SLACK_CHANNAL=#sandbox
