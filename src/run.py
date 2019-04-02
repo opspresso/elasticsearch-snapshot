@@ -12,9 +12,11 @@ bucket = os.environ.get('AWS_BUCKET')
 
 es_host = os.environ.get('ES_HOST')
 
+index_remove = os.environ.get('INDEX_REMOVE', 'false')
 index_prefix = os.environ.get('INDEX_PREFIX', 'logstash')
 index_interval = os.environ.get('INDEX_INTERVAL', 40)
 
+snapshot_remove = os.environ.get('SNAPSHOT_REMOVE', 'false')
 snapshot_prefix = os.environ.get('SNAPSHOT_PREFIX', 'snapshot')
 snapshot_interval = os.environ.get('SNAPSHOT_INTERVAL', 365)
 
@@ -39,6 +41,9 @@ def post_slack(text):
 
 
 def remove_index():
+    if index_remove != 'true':
+        return
+
     index = index_prefix + '-' + (date.today() - timedelta(index_interval)).strftime("%Y.%m.%d")
 
     print('Remove %s : %s' % (index_prefix, index))
@@ -55,6 +60,9 @@ def remove_index():
 
 
 def remove_snapshot():
+    if snapshot_remove != 'true':
+        return
+
     snapshot = snapshot_prefix + '-' + (date.today() - timedelta(snapshot_interval)).strftime("%Y.%m.%d")
 
     print('Remove %s : %s/%s' % (snapshot_prefix, bucket, snapshot))
@@ -94,8 +102,8 @@ if __name__ == '__main__':
     if es_host is None or es_host == '':
         raise ValueError('ES_HOST')
 
-    # remove_index()
+    remove_index()
 
-    # remove_snapshot()
+    remove_snapshot()
 
     take_snapshot()
