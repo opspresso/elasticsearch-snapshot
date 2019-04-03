@@ -1,6 +1,7 @@
 # elasticsearch-snapshot
 
 [![Docker Repository on Quay](https://quay.io/repository/opsnow-tools/elasticsearch-snapshot/status "Docker Repository on Quay")](https://quay.io/repository/opsnow-tools/elasticsearch-snapshot)
+[![GitHub release](https://img.shields.io/github/release/opsnow-tools/elasticsearch-snapshot.svg)](https://github.com/opsnow-tools/elasticsearch-snapshot/releases)
 
 ## usage
 
