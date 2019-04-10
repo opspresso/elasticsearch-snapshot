@@ -127,16 +127,15 @@ _slack() {
     REPO=${2}
     CURR=${3}
 
-    if [ ! -z ${SLACK_TOKEN} ]; then
-        TITLE="${NAME} updated"
-
-        FOOTER="<https://github.com/${REPO}/releases/tag/${CURR}|${REPO}>"
-
-        curl -sL opspresso.com/tools/slack | bash -s -- \
-            --token="${SLACK_TOKEN}" --emoji=":construction_worker:" --username="${USERNAME}" \
-            --footer="${FOOTER}" --footer_icon="https://repo.opspresso.com/favicon/github.png" \
-            --color="good" --title="${TITLE}" "\`${CURR}\`"
+    if [ -z ${SLACK_TOKEN} ]; then
+        return
     fi
+
+    curl -sL repo.opsnow.io/valve-ctl/slack | bash -s -- \
+        --token="${SLACK_TOKEN}" --username="${USERNAME}" \
+        --footer="<https://github.com/${REPO}/releases/tag/${CURR}|${REPO}>" \
+        --footer_icon="https://repo.opspresso.com/favicon/github.png" \
+        --color="good" --title="${NAME} updated" "\`${CURR}\`"
 }
 
 _package() {
