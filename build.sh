@@ -128,14 +128,11 @@ _slack() {
     CURR=${3}
 
     if [ ! -z ${SLACK_TOKEN} ]; then
-        TITLE="${NAME} updated"
-
-        FOOTER="<https://github.com/${REPO}/releases/tag/${CURR}|${REPO}>"
-
         curl -sL opspresso.com/tools/slack | bash -s -- \
             --token="${SLACK_TOKEN}" --username="${USERNAME}" \
-            --footer="${FOOTER}" --footer_icon="https://repo.opspresso.com/favicon/github.png" \
-            --color="good" --title="${TITLE}" "\`${CURR}\`"
+            --footer="<https://github.com/${REPO}/releases/tag/${CURR}|${REPO}>" \
+            --footer_icon="https://repo.opspresso.com/favicon/github.png" \
+            --color="good" --title="${NAME} updated" "\`${CURR}\`"
     fi
 }
 
