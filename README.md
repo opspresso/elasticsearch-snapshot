@@ -1,13 +1,17 @@
 # elasticsearch-snapshot
 
-[![Docker Repository on Quay](https://quay.io/repository/opsnow-tools/elasticsearch-snapshot/status "Docker Repository on Quay")](https://quay.io/repository/opsnow-tools/elasticsearch-snapshot)
 [![GitHub release](https://img.shields.io/github/release/opsnow-tools/elasticsearch-snapshot.svg)](https://github.com/opsnow-tools/elasticsearch-snapshot/releases)
+[![CircleCI](https://circleci.com/gh/opsnow-tools/elasticsearch-snapshot.svg?style=svg)](https://circleci.com/gh/opsnow-tools/elasticsearch-snapshot)
+
+[![DockerHub Badge](http://dockeri.co/image/opsnowtools/elasticsearch-snapshot)](https://hub.docker.com/r/opsnowtools/elasticsearch-snapshot/)
+
+```bash
+docker pull opsnowtools/elasticsearch-snapshot
+```
 
 ## usage
 
 ```
-docker pull quay.io/opsnow-tools/elasticsearch-snapshot
-
 export AWS_REGION=ap-northeast-2
 export AWS_BUCKET=elasticsearch-snapshot
 
