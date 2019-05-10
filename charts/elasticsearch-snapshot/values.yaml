@@ -7,7 +7,25 @@ schedule: "0 0 * * *"
 restart: Never
 
 env:
-  aws_bucket: elasticsearch-snapshot
-  aws_region: ap-northeast-2
-  es_host: http://elasticsearch.domain.com/
-  slack_token: ""
+  - name: AWS_BUCKET
+    value: elasticsearch-snapshot
+  - name: AWS_REGION
+    value: ap-northeast-2
+  - name: ES_HOST
+    value: http://elasticsearch.domain.com/
+  # - name: INDEX_REMOVE
+  #   value: "false"
+  # - name: INDEX_PREFIX
+  #   value: logstash
+  # - name: INDEX_INTERVAL
+  #   value: "40"
+  # - name: SNAPSHOT_REMOVE
+  #   value: "false"
+  # - name: SNAPSHOT_PREFIX
+  #   value: snapshot
+  # - name: SNAPSHOT_INTERVAL
+  #   value: "365"
+  # - name: SLACK_TOKEN
+  #   value: "xoxb-0000-0000-xxxx"
+  # - name: SLACK_CHANNAL
+  #   value: "#sandbox"
