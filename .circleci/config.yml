@@ -15,6 +15,7 @@ jobs:
             mkdir target
             curl -sLo target/builder.sh repo.opsnow.io/valve-ctl/builder
             bash ./target/builder.sh package
+            bash ./build.sh
       - persist_to_workspace:
           root: /tmp/works
           paths:

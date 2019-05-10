@@ -1,9 +1,10 @@
 import os
 import boto3
 import requests
+import re
 
 # from requests_aws4auth import AWS4Auth
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from slacker import Slacker
 
 region = os.environ.get('AWS_REGION', 'ap-northeast-2')
@@ -44,38 +45,56 @@ def remove_index():
     if index_remove != 'true':
         return
 
-    index = index_prefix + '-' + (date.today() - timedelta(index_interval)).strftime("%Y.%m.%d")
+    past = date.today() - timedelta(index_interval)
 
-    print('Remove %s : %s' % (index_prefix, index))
+    url = es_host + '_cat/indices?format=json'
+    json = requests.get(url).json()
 
-    try:
-        url = es_host + index
+    for item in json:
+        index = item['index']
+        match = re.search(r'\d{4}.\d{2}.\d{2}', index)
+        if match:
+            s = match.group()
+            d = datetime.strptime(s[0:4]+s[5:7]+s[8:10], '%Y%m%d').date()
+            if d < past:
+                print('Remove index %s %s' % (d, index))
 
-        r = requests.delete(url)
+                try:
+                    url = es_host + index
+                    r = requests.delete(url)
 
-        post_slack('Remove %s : %s : %s' % (index_prefix, index, r.text))
+                    post_slack('Remove index %s : %s' % (index, r.text))
 
-    except KeyError as ex:
-        post_slack('Environment variable %s not set.' % str(ex))
+                except KeyError as ex:
+                    post_slack('Environment variable %s not set.' % str(ex))
 
 
 def remove_snapshot():
     if snapshot_remove != 'true':
         return
 
-    snapshot = snapshot_prefix + '-' + (date.today() - timedelta(snapshot_interval)).strftime("%Y.%m.%d")
+    past = date.today() - timedelta(snapshot_interval)
 
-    print('Remove %s : %s/%s' % (snapshot_prefix, bucket, snapshot))
+    url = es_host + '_snapshot/' + bucket + '/_all'
+    json = requests.get(url).json()
 
-    try:
-        url = es_host + '_snapshot/' + bucket + '/' + snapshot
+    for item in json['snapshots']:
+        snapshot = item['snapshot']
+        match = re.search(r'\d{4}.\d{2}.\d{2}', snapshot)
+        if match:
+            s = match.group()
+            d = datetime.strptime(s[0:4]+s[5:7]+s[8:10], '%Y%m%d').date()
+            if d < past:
+                print('Remove snapshot %s %s' % (d, snapshot))
 
-        r = requests.delete(url)
+                try:
+                    url = es_host + '_snapshot/' + bucket + '/' + snapshot
+                    r = requests.delete(url)
 
-        post_slack('Remove %s : %s/%s : %s' % (snapshot_prefix, bucket, snapshot, r.text))
+                    post_slack('Remove snapshot %s/%s : %s' % (bucket, snapshot, r.text))
 
-    except KeyError as ex:
-        post_slack('Environment variable %s not set.' % str(ex))
+                except KeyError as ex:
+                    post_slack('Environment variable %s not set.' % str(ex))
 
 
 def take_snapshot():
@@ -85,9 +104,8 @@ def take_snapshot():
 
     try:
         url = es_host + '_snapshot/' + bucket + '/' + snapshot
-
-        # r = requests.put(url, auth=awsauth)
         r = requests.put(url)
+        # r = requests.put(url, auth=awsauth)
 
         post_slack('Take %s : %s/%s : %s' % (snapshot_prefix, bucket, snapshot, r.text))
 
