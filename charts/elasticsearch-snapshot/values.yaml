@@ -6,5 +6,10 @@ schedule: "0 0 * * *"
 
 restart: Never
 
-envFrom:
-  enabled: true
+env: {}
+
+configmap:
+  enabled: false
+
+secret:
+  enabled: false

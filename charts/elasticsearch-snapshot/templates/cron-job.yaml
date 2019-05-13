@@ -21,9 +21,15 @@ spec:
             env:
 {{ toYaml . | indent 14 }}
 {{- end }}
-{{ if or .Values.envFrom.enabled }}
+{{ if or .Values.configmap.enabled .Values.secret.enabled }}
             envFrom:
+{{ end }}
+{{ if .Values.configmap.enabled }}
               - configMapRef:
+                  name: {{ include "fullname" . }}
+{{ end }}
+{{ if .Values.secret.enabled }}
+              - secretRef:
                   name: {{ include "fullname" . }}
 {{ end }}
           restartPolicy: {{ .Values.restart }}
