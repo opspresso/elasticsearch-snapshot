@@ -13,13 +13,14 @@ bucket = os.environ.get('AWS_BUCKET')
 
 es_host = os.environ.get('ES_HOST')
 
-index_remove = os.environ.get('INDEX_REMOVE', 'false')
-index_prefix = os.environ.get('INDEX_PREFIX', 'logstash')
-index_interval = os.environ.get('INDEX_INTERVAL', 40)
-
-snapshot_remove = os.environ.get('SNAPSHOT_REMOVE', 'false')
+snapshot_enable = os.environ.get('SNAPSHOT_ENABLE', 'true')
 snapshot_prefix = os.environ.get('SNAPSHOT_PREFIX', 'snapshot')
-snapshot_interval = os.environ.get('SNAPSHOT_INTERVAL', 365)
+
+remove_indices_enable = os.environ.get('REMOVE_INDICES_ENABLE', 'false')
+remove_indices_delta = os.environ.get('REMOVE_INDICES_DELTA', 'false')
+
+remove_snapshot_enable = os.environ.get('REMOVE_SNAPSHOT_ENABLE', 'false')
+remove_snapshot_delta = os.environ.get('REMOVE_SNAPSHOT_DELTA', 'false')
 
 token = os.environ.get('SLACK_TOKEN')
 channal = os.environ.get('SLACK_CHANNAL', '#sandbox')
@@ -42,10 +43,10 @@ def post_slack(text):
 
 
 def remove_index():
-    if index_remove != 'true':
+    if remove_indices_enable != 'true':
         return
 
-    past = date.today() - timedelta(index_interval)
+    past = date.today() - timedelta(remove_indices_delta)
 
     url = es_host + '_cat/indices?format=json'
     json = requests.get(url).json()
@@ -70,10 +71,10 @@ def remove_index():
 
 
 def remove_snapshot():
-    if snapshot_remove != 'true':
+    if remove_snapshot_enable != 'true':
         return
 
-    past = date.today() - timedelta(snapshot_interval)
+    past = date.today() - timedelta(remove_snapshot_delta)
 
     url = es_host + '_snapshot/' + bucket + '/_all'
     json = requests.get(url).json()
@@ -98,6 +99,9 @@ def remove_snapshot():
 
 
 def take_snapshot():
+    if snapshot_enable != 'true':
+        return
+
     snapshot = snapshot_prefix + '-' + (date.today()).strftime("%Y.%m.%d")
 
     print('Take %s : %s/%s' % (snapshot_prefix, bucket, snapshot))

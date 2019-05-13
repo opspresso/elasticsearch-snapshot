@@ -13,17 +13,17 @@ env:
     value: ap-northeast-2
   - name: ES_HOST
     value: http://elasticsearch.domain.com/
-  # - name: INDEX_REMOVE
-  #   value: "false"
-  # - name: INDEX_PREFIX
-  #   value: logstash
-  # - name: INDEX_INTERVAL
-  #   value: "40"
-  # - name: SNAPSHOT_REMOVE
-  #   value: "false"
+  # - name: SNAPSHOT_ENABLE
+  #   value: "true"
   # - name: SNAPSHOT_PREFIX
   #   value: snapshot
-  # - name: SNAPSHOT_INTERVAL
+  # - name: REMOVE_INDICES_ENABLE
+  #   value: "false"
+  # - name: REMOVE_INDICES_DELTA
+  #   value: "40"
+  # - name: REMOVE_SNAPSHOT_ENABLE
+  #   value: "false"
+  # - name: REMOVE_SNAPSHOT_DELTA
   #   value: "365"
   # - name: SLACK_TOKEN
   #   value: "xoxb-0000-0000-xxxx"

@@ -17,13 +17,14 @@ export AWS_BUCKET=elasticsearch-snapshot
 
 export ES_HOST=http://elasticsearch.domain.com/
 
-export INDEX_REMOVE=false
-export INDEX_PREFIX=logstash
-export INDEX_INTERVAL=40
+export SNAPSHOT_ENABLE=true
+export SNAPSHOT_PREFIX=40
 
-export SNAPSHOT_REMOVE=false
-export SNAPSHOT_PREFIX=snapshot
-export SNAPSHOT_INTERVAL=365
+export REMOVE_INDICES_ENABLE=false
+export REMOVE_INDICES_DELTA=40
+
+export REMOVE_SNAPSHOT_ENABLE=false
+export REMOVE_SNAPSHOT_DELTA=365
 
 export SLACK_TOKEN=xoxb-0000-0000-xxxx
 export SLACK_CHANNAL=#sandbox
