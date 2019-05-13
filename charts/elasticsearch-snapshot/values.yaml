@@ -6,26 +6,5 @@ schedule: "0 0 * * *"
 
 restart: Never
 
-env:
-  - name: AWS_BUCKET
-    value: elasticsearch-snapshot
-  - name: AWS_REGION
-    value: ap-northeast-2
-  - name: ES_HOST
-    value: http://elasticsearch.domain.com/
-  # - name: SNAPSHOT_ENABLE
-  #   value: "true"
-  # - name: SNAPSHOT_PREFIX
-  #   value: snapshot
-  # - name: REMOVE_INDICES_ENABLE
-  #   value: "false"
-  # - name: REMOVE_INDICES_DELTA
-  #   value: "40"
-  # - name: REMOVE_SNAPSHOT_ENABLE
-  #   value: "false"
-  # - name: REMOVE_SNAPSHOT_DELTA
-  #   value: "365"
-  # - name: SLACK_TOKEN
-  #   value: "xoxb-0000-0000-xxxx"
-  # - name: SLACK_CHANNAL
-  #   value: "#sandbox"
+envFrom:
+  enabled: true

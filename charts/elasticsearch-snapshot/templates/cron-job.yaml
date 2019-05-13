@@ -21,4 +21,9 @@ spec:
             env:
 {{ toYaml . | indent 14 }}
 {{- end }}
+{{ if or .Values.envFrom.enabled }}
+            envFrom:
+              - configMapRef:
+                  name: {{ include "fullname" . }}
+{{ end }}
           restartPolicy: {{ .Values.restart }}
