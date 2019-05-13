@@ -4,17 +4,17 @@ OS_NAME="$(uname | awk '{print tolower($0)}')"
 
 SHELL_DIR=$(dirname $0)
 
-CMD=${1:-${CIRCLE_JOB}}
+CMD=${1:-$CIRCLE_JOB}
+
+RUN_PATH=${2:-$SHELL_DIR}
 
 USERNAME=${CIRCLE_PROJECT_USERNAME:-opsnow-tools}
 REPONAME=${CIRCLE_PROJECT_REPONAME:-elasticsearch-snapshot}
 
 BRANCH=${CIRCLE_BRANCH:-master}
 
-BUCKET="repo.opsnow.io"
-
-GIT_USERNAME="bot"
-GIT_USEREMAIL="sre@bespinglobal.com"
+PR_NUM=${CIRCLE_PR_NUMBER}
+PR_URL=${CIRCLE_PULL_REQUEST}
 
 ################################################################################
 
@@ -61,133 +61,37 @@ _replace() {
 
 _prepare() {
     # target
-    mkdir -p ${SHELL_DIR}/target/dist
+    mkdir -p ${RUN_PATH}/target/publish
+    mkdir -p ${RUN_PATH}/target/release
 
     # 755
     find ./** | grep [.]sh | xargs chmod 755
 }
 
-_get_version() {
-    # latest versions
-    VERSION=$(curl -s https://api.github.com/repos/${USERNAME}/${REPONAME}/releases/latest | grep tag_name | cut -d'"' -f4 | xargs)
-
-    if [ -z ${VERSION} ]; then
-        VERSION=$(curl -sL ${BUCKET}/${REPONAME}/VERSION | xargs)
-    fi
-
-    if [ ! -f ${SHELL_DIR}/VERSION ]; then
-        printf "v0.0.0" > ${SHELL_DIR}/VERSION
-    fi
-
-    if [ -z ${VERSION} ]; then
-        VERSION=$(cat ${SHELL_DIR}/VERSION | xargs)
-    fi
-}
-
-_gen_version() {
-    _get_version
-
-    # release version
-    MAJOR=$(cat ${SHELL_DIR}/VERSION | xargs | cut -d'.' -f1)
-    MINOR=$(cat ${SHELL_DIR}/VERSION | xargs | cut -d'.' -f2)
-
-    LATEST_MAJOR=$(echo ${VERSION} | cut -d'.' -f1)
-    LATEST_MINOR=$(echo ${VERSION} | cut -d'.' -f2)
-
-    if [ "${MAJOR}" != "${LATEST_MAJOR}" ] || [ "${MINOR}" != "${LATEST_MINOR}" ]; then
-        VERSION=$(cat ${SHELL_DIR}/VERSION | xargs)
-    fi
-
-    _result "BRANCH=${BRANCH}"
-    _result "PR_NUM=${PR_NUM}"
-    _result "PR_URL=${PR_URL}"
-
-    # version
-    if [ "${BRANCH}" == "master" ]; then
-        VERSION=$(echo ${VERSION} | perl -pe 's/^(([v\d]+\.)*)(\d+)(.*)$/$1.($3+1).$4/e')
-        printf "${VERSION}" > ${SHELL_DIR}/target/VERSION
-    else
-        if [ "${PR_NUM}" == "" ]; then
-            if [ "${PR_URL}" != "" ]; then
-                PR_NUM=$(echo $PR_URL | cut -d'/' -f7)
-            else
-                PR_NUM=${CIRCLE_BUILD_NUM}
-            fi
-        fi
-
-        printf "${PR_NUM}" > ${SHELL_DIR}/target/PRE
-
-        VERSION="${VERSION}-${PR_NUM}"
-        printf "${VERSION}" > ${SHELL_DIR}/target/VERSION
-    fi
-}
-
-_slack() {
-    NAME=${1}
-    REPO=${2}
-    CURR=${3}
-
-    if [ -z ${SLACK_TOKEN} ]; then
-        return
-    fi
-
-    curl -sL repo.opsnow.io/valve-ctl/slack | bash -s -- \
-        --token="${SLACK_TOKEN}" --username="${USERNAME}" \
-        --footer="<https://github.com/${REPO}/releases/tag/${CURR}|${REPO}>" \
-        --footer_icon="https://repo.opspresso.com/favicon/github.png" \
-        --color="good" --title="${NAME} updated" "\`${CURR}\`"
-}
-
 _package() {
-    _gen_version
-
-    _result "VERSION=${VERSION}"
-
-    # replace
-    _replace "s/name: .*/name: ${REPONAME}/g" ${SHELL_DIR}/charts/${REPONAME}/Chart.yaml
-    _replace "s/appVersion: .*/appVersion: ${VERSION}/g" ${SHELL_DIR}/charts/${REPONAME}/Chart.yaml
-    _replace "s/version: .*/version: ${VERSION}/g" ${SHELL_DIR}/charts/${REPONAME}/Chart.yaml
-    _replace "s/tag: .*/tag: ${VERSION}/g" ${SHELL_DIR}/charts/${REPONAME}/values.yaml
-
-    # tar
-    pushd ${SHELL_DIR}/charts/${REPONAME}
-    tar -zcvf ../../target/dist/${REPONAME}-${VERSION}.tar.gz templates Chart.yaml values.yaml
-    popd
-}
-
-_release() {
     if [ ! -f ${SHELL_DIR}/target/VERSION ]; then
-        return
-    fi
-    if [ -f ${SHELL_DIR}/target/PRE ]; then
-        GHR_PARAM="-delete -prerelease"
-    else
-        GHR_PARAM="-delete"
+        _error
     fi
 
     VERSION=$(cat ${SHELL_DIR}/target/VERSION | xargs)
-
     _result "VERSION=${VERSION}"
 
-    _command "go get github.com/tcnksm/ghr"
-    go get github.com/tcnksm/ghr
+    # chart path
+    CHART_PATH="${RUN_PATH}/charts/elasticsearch-snapshot"
 
-    _command "ghr ${VERSION} ${SHELL_DIR}/target/dist/"
-    ghr -t ${GITHUB_TOKEN:-EMPTY} \
-        -u ${USERNAME} \
-        -r ${REPONAME} \
-        -c ${CIRCLE_SHA1} \
-        ${GHR_PARAM} \
-        ${VERSION} ${SHELL_DIR}/target/dist/
+    # replace
+    _replace "s|version: .*|version: ${VERSION}|" ${CHART_PATH}/Chart.yaml
+    _replace "s|appVersion: .*|appVersion: ${VERSION}|" ${CHART_PATH}/Chart.yaml
+    _replace "s|tag: .*|tag: ${VERSION}|" ${CHART_PATH}/values.yaml
+
+    # release draft.tar.gz
+    pushd ${CHART_PATH}
+    tar -czf ../../../release/${REPONAME}-${VERSION}.tar.gz *
+    popd
 }
+
+################################################################################
 
 _prepare
 
-case ${CMD} in
-    package)
-        _package
-        ;;
-    release)
-        _release
-        ;;
-esac
+_package
