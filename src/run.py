@@ -17,10 +17,10 @@ snapshot_enable = os.environ.get('SNAPSHOT_ENABLE', 'true')
 snapshot_prefix = os.environ.get('SNAPSHOT_PREFIX', 'snapshot')
 
 remove_indices_enable = os.environ.get('REMOVE_INDICES_ENABLE', 'false')
-remove_indices_delta = os.environ.get('REMOVE_INDICES_DELTA', 'false')
+remove_indices_delta = int(os.environ.get('REMOVE_INDICES_DELTA', '40'))
 
 remove_snapshot_enable = os.environ.get('REMOVE_SNAPSHOT_ENABLE', 'false')
-remove_snapshot_delta = os.environ.get('REMOVE_SNAPSHOT_DELTA', 'false')
+remove_snapshot_delta = int(os.environ.get('REMOVE_SNAPSHOT_DELTA', '365'))
 
 token = os.environ.get('SLACK_TOKEN')
 channal = os.environ.get('SLACK_CHANNAL', '#sandbox')

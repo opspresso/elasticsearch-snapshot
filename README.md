@@ -17,8 +17,8 @@ export AWS_BUCKET=elasticsearch-snapshot
 
 export ES_HOST=http://elasticsearch.domain.com/
 
-export SNAPSHOT_ENABLE=true
-export SNAPSHOT_PREFIX=40
+export SNAPSHOT_ENABLE=false
+export SNAPSHOT_PREFIX=snapshot
 
 export REMOVE_INDICES_ENABLE=false
 export REMOVE_INDICES_DELTA=40
