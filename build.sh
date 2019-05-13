@@ -86,7 +86,7 @@ _package() {
 
     # release draft.tar.gz
     pushd ${CHART_PATH}
-    tar -czf ../../../release/${REPONAME}-${VERSION}.tar.gz *
+    tar -czf ../../target/release/${REPONAME}-${VERSION}.tar.gz *
     popd
 }
 
