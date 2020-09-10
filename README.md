@@ -1,12 +1,12 @@
 # elasticsearch-snapshot
 
-[![GitHub release](https://img.shields.io/github/release/opsnow-tools/elasticsearch-snapshot.svg)](https://github.com/opsnow-tools/elasticsearch-snapshot/releases)
-[![CircleCI](https://circleci.com/gh/opsnow-tools/elasticsearch-snapshot.svg?style=svg)](https://circleci.com/gh/opsnow-tools/elasticsearch-snapshot)
+[![GitHub Actions status](https://github.com/opspresso/elasticsearch-snapshot/workflows/Build-Push/badge.svg)](https://github.com/opspresso/elasticsearch-snapshot/actions)
+[![GitHub Releases](https://img.shields.io/github/release/opspresso/elasticsearch-snapshot.svg)](https://github.com/opspresso/elasticsearch-snapshot/releases)
 
-[![DockerHub Badge](http://dockeri.co/image/opsnowtools/elasticsearch-snapshot)](https://hub.docker.com/r/opsnowtools/elasticsearch-snapshot/)
+[![DockerHub Badge](http://dockeri.co/image/opspresso/elasticsearch-snapshot)](https://hub.docker.com/r/opspresso/elasticsearch-snapshot/)
 
 ```bash
-docker pull opsnowtools/elasticsearch-snapshot
+docker pull opspresso/elasticsearch-snapshot
 ```
 
 ## usage
